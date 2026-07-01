@@ -11,7 +11,7 @@
 
 WebServer server(80);
 
-// TFT屏幕引脚定义 - ST7789S 240x320
+// TFT display pin definitions - ST7789S 240x320
 // #define TFT_CS   41
 // #define TFT_RST  45
 // #define TFT_DC   40
@@ -29,27 +29,27 @@ WebServer server(80);
 #define I2S_DOUT    39   // SPK_DOUT -> GPIO14 (Audio data output from ESP32 to the amplifier)
 #define I2S_LRCK    41   // SPK_LRCK -> GPIO39 (Left/Right channel clock (LRCLK / Word Select))
 #define I2S_BCLK    40   // SPK_BCLK -> GPIO38 (Bit clock (BCLK) used to synchronize audio data transmission)
-//新版 I2S音频引脚定义
-//#define I2S_DOUT    14   // SPK_DOUT -> GPIO14 (I2S数据输出)
+//New I2S audio pin definitions
+//#define I2S_DOUT    14   // SPK_DOUT -> GPIO14 (I2S[TRANSLATE])
 //#define I2S_LRCK    39   
 //#define I2S_BCLK    38  
 
-const char* ssid = "TP-LINK_254C";
-const char* password = "2318231988";
+const char* ssid = "YOUR WIFI"; //REPLACE WITH YOUR WIFI USERNAME
+const char* password = "PASSWORD"; //REPLACE WITH PASSWORD
 
 const char* mqtt_server = "192.168.68.106";
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
-// 创建ST7789显示对象 (240x320分辨率)
+// Create ST7789 display object (240x320resolution)
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
-// I2S音频配置
+// I2S audio configuration
 #define I2S_SAMPLE_RATE 44100
 #define I2S_NUM         I2S_NUM_0
 #define I2S_SAMPLE_BITS 16
-const int TONE_FREQUENCY = 1000; // 提示音频率 (Hz)
+const int TONE_FREQUENCY = 1000; // notification tone frequency (Hz)
 
 void playMelody1();
 void playMelody2();
@@ -62,19 +62,19 @@ void playAvengers();
 void playCustomMelody();
 
 void initTFT() {
-    Serial.println("=== 初始化ST7789S TFT屏幕 ===");
+    Serial.println("=== Initialize ST7789S TFT display ===");
     
-    // 初始化背光引脚
+    // Initialize backlight pin
     pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, HIGH); // 开启背光
+    digitalWrite(TFT_BL, HIGH); // Turn on backlight
     
-    // 初始化ST7789S TFT屏幕
-    tft.init(240, 320);           // 初始化ST7789S，240x320分辨率
-    tft.setRotation(1);           // 设置屏幕旋转方向 (横屏320x240)
-    tft.fillScreen(ST77XX_BLACK); // 清空屏幕为黑色
+    // Initialize ST7789S TFT display
+    tft.init(240, 320);           // [TRANSLATE]ST7789S，240x320resolution
+    tft.setRotation(1);           // Set display rotation (landscape320x240)
+    tft.fillScreen(ST77XX_BLACK); // Clear screen to black
     
-    // 测试屏幕是否正常工作
-    Serial.println("执行屏幕测试...");
+    // Test whether the display works properly
+    Serial.println("Running display test...");
     tft.fillScreen(ST77XX_RED);
     delay(200);
     tft.fillScreen(ST77XX_GREEN);
@@ -83,43 +83,43 @@ void initTFT() {
     delay(200);
     tft.fillScreen(ST77XX_BLACK);
     
-    Serial.println("ST7789S屏幕初始化完成! (分辨率: 320x240横屏模式)");
+    Serial.println("ST7789SDisplay initialization complete! (resolution: 320x240landscape[TRANSLATE])");
 }
 
 void displayImage() {
-    // 显示静态图片
-    Serial.println("显示图片到屏幕...");
+    // Display static image
+    Serial.println("Display image on screen...");
     
-    // 清空屏幕
+    // Clear screen
     tft.fillScreen(ST77XX_BLACK);
     
-    // 显示图片数据
-    // 注意：这里使用了一个简单的演示，实际图片数据应该通过image_converter.py转换
+    // [TRANSLATE]
+    // Note: This is a simple demo. Actual image data should be converted using image_converter.py.
     int img_width = image_1_width;
     int img_height = image_1_height;
     
-    // 计算居中位置（如果图片小于屏幕）
+    // Calculate centered position（[TRANSLATE]Display）
     int start_x = (320 - img_width) / 2;
     int start_y = (240 - img_height) / 2;
     if (start_x < 0) start_x = 0;
     if (start_y < 0) start_y = 0;
     
-    Serial.printf("图片尺寸: %dx%d, 显示位置: (%d,%d)\n", img_width, img_height, start_x, start_y);
+    Serial.printf("Image size: %dx%d, Display position: (%d,%d)\n", img_width, img_height, start_x, start_y);
     
-    // 显示真实图片数据
-    // 使用转换后的图片数据
+    // Display actual image data
+    // Use converted image data
     tft.drawRGBBitmap(start_x, start_y, image_1, img_width, img_height);
 }
 
-// 注释掉动态更新函数，现在只显示静态图片
+// Dynamic update function disabled; only static image is displayed.
 // void updateDisplay() {
-//     // 动态更新功能已禁用，改为只显示静态图片
+//     // Dynamic update disabled; only static image is displayed.
 // }
 
 void initAudio() {
-    Serial.println("=== 初始化I2S音频系统 ===");
+    Serial.println("=== Initialize I2S audio system ===");
     
-    // I2S配置
+    // I2S configuration
     i2s_config_t i2s_config = {
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_TX),
         .sample_rate = I2S_SAMPLE_RATE,
@@ -134,7 +134,7 @@ void initAudio() {
         .fixed_mclk = 0
     };
     
-    // I2S引脚配置
+    // I2S pin configuration
     i2s_pin_config_t pin_config = {
         .bck_io_num = I2S_BCLK,    // GPIO38
         .ws_io_num = I2S_LRCK,     // GPIO39
@@ -142,61 +142,61 @@ void initAudio() {
         .data_in_num = I2S_PIN_NO_CHANGE
     };
     
-    // 安装和启动I2S驱动
+    // Install and start I2S driver
     esp_err_t result = i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
     if (result != ESP_OK) {
-        Serial.printf("I2S驱动安装失败: %d\n", result);
+        Serial.printf("I2S driver installation failed: %d\n", result);
         return;
     }
     
     result = i2s_set_pin(I2S_NUM, &pin_config);
     if (result != ESP_OK) {
-        Serial.printf("I2S引脚配置失败: %d\n", result);
+        Serial.printf("I2S pin configuration failed: %d\n", result);
         return;
     }
     
-    Serial.println("I2S音频系统初始化完成!");
+    Serial.println("I2S audio system initialized!");
     Serial.printf("  DOUT: GPIO%d, LRCK: GPIO%d, BCLK: GPIO%d\n", I2S_DOUT, I2S_LRCK, I2S_BCLK);
-    Serial.println("  连接到音频放大器或编解码器芯片 -> 扬声器");
+    Serial.println("  Connect to audio amplifier or codec -> speaker");
 }
 
 
 void playTone(int frequency, int duration) {
-    Serial.printf("播放音频: %dHz, 持续%dms\n", frequency, duration);
+    Serial.printf("Playing tone: %dHz, [TRANSLATE]%dms\n", frequency, duration);
     
-    // 计算样本数
+    // Calculate number of samples
     const int samples_per_ms = I2S_SAMPLE_RATE / 1000;
     const int total_samples = samples_per_ms * duration;
     
-    // 创建音频缓冲区 (16位立体声)
+    // Create audio buffer (16[TRANSLATE])
     int16_t *audio_buffer = (int16_t*)malloc(total_samples * 2 * sizeof(int16_t));
     if (audio_buffer == NULL) {
-        Serial.println("音频缓冲区分配失败!");
+        Serial.println("Failed to allocate audio buffer!");
         return;
     }
     
-    // 生成正弦波音调
+    // Generate sine wave tone
     for (int i = 0; i < total_samples; i++) {
         double t = (double)i / I2S_SAMPLE_RATE;
-        int16_t sample = (int16_t)(sin(2.0 * M_PI * frequency * t) * 16384); // 50%音量
-        audio_buffer[i * 2] = sample;     // 左声道
-        audio_buffer[i * 2 + 1] = sample; // 右声道
+        int16_t sample = (int16_t)(sin(2.0 * M_PI * frequency * t) * 16384); // 50%[TRANSLATE]
+        audio_buffer[i * 2] = sample;     // [TRANSLATE]
+        audio_buffer[i * 2 + 1] = sample; // [TRANSLATE]
     }
     
-    // 通过I2S输出音频
+    // Output audio through I2S
     size_t bytes_written;
     esp_err_t result = i2s_write(I2S_NUM, audio_buffer, total_samples * 2 * sizeof(int16_t), &bytes_written, pdMS_TO_TICKS(duration + 100));
     
     if (result != ESP_OK) {
-        Serial.printf("I2S写入失败: %d\n", result);
+        Serial.printf("I2S write failed: %d\n", result);
     } else {
-        Serial.printf("I2S音频输出: %d字节\n", bytes_written);
+        Serial.printf("I2S audio output: %d[TRANSLATE]\n", bytes_written);
     }
     
-    // 释放缓冲区
+    // Release buffer
     free(audio_buffer);
     
-    // // 在TFT上显示音频状态 - 适配320x240横屏
+    // // [TRANSLATE]TFT[TRANSLATE]Audio[TRANSLATE] - [TRANSLATE]320x240landscape
     // tft.fillRect(160, 210, 150, 15, ST77XX_BLACK);
     // tft.setTextColor(ST77XX_MAGENTA);
     // tft.setTextSize(1);
@@ -205,15 +205,15 @@ void playTone(int frequency, int duration) {
 }
 
 void playWelcomeTone() {
-    // 播放欢迎提示音序列
-    Serial.println("播放欢迎音乐序列...");
+    // Play welcome tone sequence
+    Serial.println("[TRANSLATE]...");
     playTone(523, 200);  // C5
     delay(50);
     playTone(659, 200);  // E5
     delay(50);
     playTone(784, 300);  // G5
     
-    // 清除音频状态显示
+    // [TRANSLATE]Audio[TRANSLATE]
     // tft.fillRect(160, 210, 150, 15, ST77XX_BLACK);
 }
 
@@ -629,12 +629,12 @@ void setup() {
 
     Serial.println("");
     Serial.println("========================================");
-    Serial.println("ESP32-S3 + ST7789S + 音频演示项目");
+    Serial.println("ESP32-S3 + ST7789S + Audio[TRANSLATE]");
     Serial.println("========================================");
 
-    Serial.println("硬件配置:");
-    Serial.println("  屏幕: ST7789S 240×320 TFT显示屏");  
-    Serial.println("  音频: I2S接口连接音频放大器/编解码器芯片");
+    Serial.println("Hardware configuration:");
+    Serial.println("  Display: ST7789S 240×320 TFT[TRANSLATE]");  
+    Serial.println("  Audio: I2S[TRANSLATE]Audio[TRANSLATE]/[TRANSLATE]");
     Serial.println("        GPIO39(DOUT) + GPIO40(BCLK) + GPIO41(LRCK)");
     Serial.println("");
 
@@ -680,15 +680,15 @@ void setup() {
 
     Serial.println("");
     Serial.println("========================================");
-    Serial.println("系统启动完成!");
+    Serial.println("System startup complete!");
     Serial.println("========================================");
-    Serial.println("可用串口命令:");
-    Serial.println("  tone     - 播放测试音调");
-    Serial.println("  beep     - 播放提示音");
-    Serial.println("  melody1  - 播放快乐旋律");
-    Serial.println("  melody2  - 播放柔和旋律");
-    Serial.println("  clear    - 重新显示图片");
-    Serial.println("  test     - 彩色显示测试");
+    Serial.println("Available serial commands:");
+    Serial.println("  tone     - [TRANSLATE]");
+    Serial.println("  beep     - [TRANSLATE]");
+    Serial.println("  melody1  - Play happy melody");
+    Serial.println("  melody2  - Play soft melody");
+    Serial.println("  clear    - [TRANSLATE]");
+    Serial.println("  test     - [TRANSLATE]");
     Serial.println("========================================");
 }
 
@@ -728,8 +728,8 @@ void loop() {
             displayImage();
             playTone(1000, 200);
         } else {
-            Serial.println("未知命令: " + command);
-            Serial.println("输入: tone, beep, melody1, melody2, clear, test");
+            Serial.println("Unknown command: " + command);
+            Serial.println("Enter: tone, beep, melody1, melody2, clear, test");
         }
     }
 
