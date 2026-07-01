@@ -37,7 +37,7 @@ WebServer server(80);
 const char* ssid = "YOUR WIFI"; //REPLACE WITH YOUR WIFI USERNAME
 const char* password = "PASSWORD"; //REPLACE WITH PASSWORD
 
-const char* mqtt_server = "192.168.68.106";
+const char* mqtt_server = "192.168.XX.XX"; //REPLACE WITH YOUR MQTT IP
 
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
